@@ -3,10 +3,11 @@ const
     stripe = require('../tools/stripe').Stripe;
 
 module.exports = {
+    customerCreated: async function(event) {
+        console.log('Customer created event', event)
+    },
     processWebhook: async function (req, res, next) {
         try {
-            console.log('request body', req.body)
-            console.log('request headers', req.headers)
 
             let event
 
@@ -16,14 +17,17 @@ module.exports = {
                 // Extract the object from the event.
                 const dataObject = event.data.object
 
-                console.log('data object', dataObject)
-                console.log('event', event)
-
                 // Handle the event
                 // Review important events for Billing webhooks
                 // https://stripe.com/docs/billing/webhooks
                 // Remove comment to see the various objects sent for this sample
                 switch (event.type) {
+                    case 'customer.created':
+                        // Used to provision services after the trial has ended.
+                        // The status of the invoice will show up as paid. Store the status in your
+                        // database to reference when a user accesses your service to avoid hitting rate limits.
+                        module.exports.customerCreated(event)
+                        break;
                     case 'invoice.paid':
                         // Used to provision services after the trial has ended.
                         // The status of the invoice will show up as paid. Store the status in your

@@ -12,6 +12,8 @@ module.exports = {
     interceptor: async function (req, res, next) {
         try {
             if (!req.user || !req.user.sub) {
+                if (req.path === '/create-customer' && req.method === 'POST') return next()
+                if (req.path === '/update-customer' && req.method === 'POST') return next()
                 if (req.path === '/stripe-webhook' && req.method === 'POST') return next()
                 return res.status(500).send('user not found')
             } else {

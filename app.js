@@ -13,18 +13,22 @@ const http = require('http');
 const app = express();
 const port = process.env.PORT
 
+const jwt = require('./src/shared/plugins/network/jwt')
+const router = require('./src/shared/plugins/network/router')
+const routerStripeWebhook = require('./src/shared/plugins/network/routerStripeWebhook')
+
 app.set('port', port);
 
 app.use(logger('dev'));
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
-const jwt = require('./src/shared/plugins/network/jwt')
-const router = require('./src/shared/plugins/network/router')
+// Rearranged middleware to support raw stripe webhook body payloads
+app.use('/', routerStripeWebhook.config())
 
+app.use(express.json())
 app.use(jwt.config())
 app.use('/', router.config())
 app.use(jwt.handler)
