@@ -1,0 +1,6 @@
+cd ~
+mkdir .aws
+cd ../usr/src/app
+mv credentials ~/.aws/
+mv .env.production .env
+rm -f .npmrc
