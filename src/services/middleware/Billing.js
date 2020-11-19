@@ -4,24 +4,6 @@ const
     moment = require('moment');
 
 module.exports = {
-    getAccountType: async (req, res, next) => {
-        try {
-            const findPayload = { sub: req.user.sub }
-            let billing = await IndexSchema.Billing.findOne(findPayload)
-
-            if (!billing) {
-                return res.status(401).send('Could not find billing')
-            }
-            if (!billing.accountType) {
-                return res.status(401).send('Could not find billing account type')
-            }
-
-            return res.status(200).send({ accountType: billing.accountType })
-        } catch (err) {
-            console.log(err)
-            return res.status(500).send(err)
-        }
-    },
     updateAccountType: async (req, res, next) => {
         try {
             const findPayload = { sub: req.user.sub }

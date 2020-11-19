@@ -73,7 +73,7 @@ module.exports = {
             const listUsers = await Cognito.listUsers({
                 UserPoolId: process.env.API_AWS_USER_POOL,
                 AttributesToGet: [
-                    'sub',
+                    'sub','email',
                 ],
             }).promise()
 
@@ -97,7 +97,7 @@ module.exports = {
                 if (attribute.Name === 'sub') {
                     sub = attribute.Value
                 }
-            if (attribute.Name === 'email') {
+                if (attribute.Name === 'email') {
                     email = attribute.Value
                 }
             })
