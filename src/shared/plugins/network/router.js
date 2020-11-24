@@ -21,6 +21,8 @@ module.exports.config = function () {
     
     router.post('/update-global-workflow-status', SettingMiddleware.updateGlobalWorkflowStatus)
     router.post('/update-email-alert', SettingMiddleware.updateEmailAlert)
+    router.post('/generate-token', SettingMiddleware.generateToken)
+    router.post('/revoke-token', SettingMiddleware.revokeToken)
 
     router.post('/update-account-type', BillingMiddleware.updateAccountType)
 

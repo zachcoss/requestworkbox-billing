@@ -7,7 +7,7 @@ const
 module.exports = {
     getAccountDetails: async (req, res, next) => {
         try {
-            const findPayload = { sub: req.user.sub }
+            const findPayload = { sub: req.user.sub, active: true, }
 
             // Pull Billing
             let billing = await IndexSchema.Billing.findOne(findPayload)
@@ -26,6 +26,9 @@ module.exports = {
                 return res.status(401).send('Could not find setting')
             }
 
+            // Pull Tokens
+            let tokens = await IndexSchema.Token.find(findPayload, '-_id snippet')
+
             // Pull Stripe customer object
             const customer = await stripe.customers.retrieve(billing.stripeCustomerId)
 
@@ -34,6 +37,7 @@ module.exports = {
                 setting,
                 balance: customer.balance,
                 card: customer.default_source,
+                tokens,
             }
 
             return res.status(200).send(accountDetails)

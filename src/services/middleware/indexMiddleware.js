@@ -15,7 +15,7 @@ module.exports = {
                 if (req.path === '/create-customer' && req.method === 'POST') return next()
                 if (req.path === '/update-customer' && req.method === 'POST') return next()
                 if (req.path === '/stripe-webhook' && req.method === 'POST') return next()
-                return res.status(500).send('user not found')
+                return res.status(401).send('user not found')
             } else {
                 console.log('current user: ', req.user.sub)
                 return next()
