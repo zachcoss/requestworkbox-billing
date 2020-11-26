@@ -29,6 +29,7 @@ module.exports.config = function () {
 
     router.post('/create-setup-intent', StripeSetupIntent.createSetupIntent)
     router.post('/update-payment-method', StripeSetupIntent.updatePaymentMethod)
+    router.post('/remove-payment-method', StripeSetupIntent.removePaymentMethod)
 
     return router;
 }

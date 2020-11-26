@@ -6,13 +6,18 @@ const
 module.exports = {
     createSetupIntent: async function (req, res, next) {
         try {
-            if (!req.body.stripeCustomerId) {
-                return res.status(400).send('Please include customer id')
+            const findPayload = { sub: req.user.sub }
+            let billing = await IndexSchema.Billing.findOne(findPayload)
+
+            if (!billing) {
+                return res.status(401).send('Could not find billing')
             }
 
+            const stripeCustomerId = billing.stripeCustomerId
+
             const intent =  await stripe.setupIntents.create({
-                customer: req.body.stripeCustomerId,
-            });
+                customer: stripeCustomerId,
+            })
 
             return res.status(200).send({ clientSecret: intent.client_secret })
         } catch (err) {
@@ -22,16 +27,22 @@ module.exports = {
     },
     updatePaymentMethod: async function (req, res, next) {
         try {
-            if (!req.body.stripeCustomerId) {
-                return res.status(400).send('Please include customer id')
-            }
             if (!req.body.paymentMethodId) {
                 return res.status(400).send('Please include payment id')
             }
 
-            const paymentMethodId = req.body.paymentMethodId
+            const findPayload = { sub: req.user.sub }
+            let billing = await IndexSchema.Billing.findOne(findPayload)
 
-            const customer = await stripe.customers.update(req.body.stripeCustomerId, {
+            if (!billing) {
+                return res.status(401).send('Could not find billing')
+            }
+
+            const stripeCustomerId = billing.stripeCustomerId
+            const paymentMethodId = req.body.paymentMethodId
+            
+
+            const customer = await stripe.customers.update(stripeCustomerId, {
                 invoice_settings: {
                     default_payment_method: paymentMethodId
                 }
@@ -39,14 +50,40 @@ module.exports = {
 
             const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId)
 
-            const account = await IndexSchema.Billing.findOne({sub: req.user.sub})
-
-            account.stripeCardBrand = paymentMethod.card.brand
-            account.stripeCardMonth = paymentMethod.card.exp_month
-            account.stripeCardYear = paymentMethod.card.exp_year
-            account.stripeCardLast4 = paymentMethod.card.last4
+            billing.stripeCardBrand = paymentMethod.card.brand
+            billing.stripeCardMonth = paymentMethod.card.exp_month
+            billing.stripeCardYear = paymentMethod.card.exp_year
+            billing.stripeCardLast4 = paymentMethod.card.last4
             
-            await account.save()
+            await billing.save()
+
+            return res.status(200).send('OK')
+        } catch (err) {
+            console.log(err)
+            return res.status(500).send('error intercepting webhook')
+        }
+    },
+    removePaymentMethod: async function (req, res, next) {
+        try {
+            const findPayload = { sub: req.user.sub }
+            let billing = await IndexSchema.Billing.findOne(findPayload)
+
+            if (!billing) {
+                return res.status(401).send('Could not find billing')
+            }
+
+            const stripeCustomerId = billing.stripeCustomerId
+
+            const customer = await stripe.customers.retrieve(stripeCustomerId)
+            const paymentMethodId = customer.invoice_settings.default_payment_method
+
+            await stripe.customers.update(customer.id, {
+                invoice_settings: {
+                    default_payment_method: null,
+                }
+            })
+
+            await stripe.paymentMethods.detach(paymentMethodId)
 
             return res.status(200).send('OK')
         } catch (err) {
