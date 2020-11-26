@@ -32,11 +32,18 @@ module.exports = {
             // Pull Stripe customer object
             const customer = await stripe.customers.retrieve(billing.stripeCustomerId)
 
+            let card = ''
+
+            if (billing.stripeCardBrand && customer.invoice_settings.default_payment_method) {
+                card = `${billing.stripeCardBrand.toUpperCase()} ${billing.stripeCardLast4}`
+            }
+
             const accountDetails = {
                 accountType: billing.accountType,
+                stripeCustomerId: billing.stripeCustomerId,
                 setting,
                 balance: customer.balance,
-                card: customer.default_source,
+                card: card,
                 tokens,
             }
 

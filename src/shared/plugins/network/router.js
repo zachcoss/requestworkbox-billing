@@ -7,7 +7,8 @@ const
     AccountMiddleware = require('../../../services/middleware/Account'),
     BillingMiddleware = require('../../../services/middleware/Billing'),
     SettingMiddleware = require('../../../services/middleware/Setting'),
-    StripeWebhook = require('../../../services/middleware/StripeWebhook');
+    StripeWebhook = require('../../../services/middleware/StripeWebhook'),
+    StripeSetupIntent = require('../../../services/middleware/StripeSetupIntent');
 
 module.exports.config = function () {
 
@@ -18,13 +19,16 @@ module.exports.config = function () {
     router.post('/update-customer', SignupMiddleware.updateCustomer)
 
     router.post('/get-account-details', AccountMiddleware.getAccountDetails)
+
+    router.post('/update-account-type', BillingMiddleware.updateAccountType)
     
     router.post('/update-global-workflow-status', SettingMiddleware.updateGlobalWorkflowStatus)
     router.post('/update-email-alert', SettingMiddleware.updateEmailAlert)
     router.post('/generate-token', SettingMiddleware.generateToken)
     router.post('/revoke-token', SettingMiddleware.revokeToken)
 
-    router.post('/update-account-type', BillingMiddleware.updateAccountType)
+    router.post('/create-setup-intent', StripeSetupIntent.createSetupIntent)
+    router.post('/update-payment-method', StripeSetupIntent.updatePaymentMethod)
 
     return router;
 }
