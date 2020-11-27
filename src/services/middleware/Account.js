@@ -106,6 +106,23 @@ module.exports = {
                 checkoutTotals.checkoutTotal = finalPrice.price
             }
 
+            if (req.body.coupon) {
+                const promotionCodes = await stripe.promotionCodes.list()
+
+                const promotion = _.filter(promotionCodes.data, (promotion) => {
+                    if (_.lowerCase(promotion.code) === _.lowerCase(req.body.coupon)) return true
+                    else return false
+                })[0]
+
+                if (promotion.id && promotion.coupon && promotion.coupon.percent_off) {
+                    const percentOff = promotion.coupon.percent_off / 100
+                    const reduction = checkoutTotals.checkoutPrice * percentOff
+
+                    checkoutTotals.checkoutDiscount = reduction
+                    checkoutTotals.checkoutTotal = checkoutTotals.checkoutPrice - checkoutTotals.checkoutDiscount
+                }
+            }
+
             return res.status(200).send(checkoutTotals)
         } catch (err) {
             console.log(err)
