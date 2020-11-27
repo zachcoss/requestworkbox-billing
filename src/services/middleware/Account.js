@@ -53,4 +53,63 @@ module.exports = {
             return res.status(500).send(err)
         }
     },
+    previewCheckoutPrice: async (req, res, next) => {
+        try {
+            const findPayload = { sub: req.user.sub, active: true, }
+
+            if (!req.body.checkoutType) return res.status(400).send('Please include checkout type')
+
+            let billing = await IndexSchema.Billing.findOne(findPayload)
+
+            if (!billing) {
+                return res.status(401).send('Could not find billing')
+            }
+            if (!billing.accountType) {
+                return res.status(401).send('Could not find billing account type')
+            }
+
+            const upgradeTo = req.body.checkoutType
+
+            const products = await stripe.products.list({
+                limit: 3,
+            })
+
+            const selectedProduct = _.filter(products.data, (product) => {
+                if (product.name === _.upperFirst(upgradeTo)) return true
+                else return false
+            })[0]
+
+            const prices = await stripe.prices.list({
+                product: selectedProduct.id
+            })
+
+            const selectedPrices = _.map(prices.data, function(price) {
+                return {
+                    price: price.unit_amount,
+                    name: price.nickname,
+                }
+            })
+
+            const finalPrice = _.filter(selectedPrices, (product) => {
+                if (product.name === `${upgradeTo}_monthly`) return true
+                else return false
+            })[0]
+
+            const checkoutTotals = {
+                checkoutPrice: 0,
+                checkoutDiscount: 0,
+                checkoutTotal: 0,
+            }
+
+            if (billing.accountType === 'free') {
+                checkoutTotals.checkoutPrice = finalPrice.price
+                checkoutTotals.checkoutTotal = finalPrice.price
+            }
+
+            return res.status(200).send(checkoutTotals)
+        } catch (err) {
+            console.log(err)
+            return res.status(500).send(err)
+        }
+    },
 }

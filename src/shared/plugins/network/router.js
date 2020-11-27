@@ -19,6 +19,7 @@ module.exports.config = function () {
     router.post('/update-customer', SignupMiddleware.updateCustomer)
 
     router.post('/get-account-details', AccountMiddleware.getAccountDetails)
+    router.post('/preview-checkout-price', AccountMiddleware.previewCheckoutPrice)
 
     router.post('/update-account-type', BillingMiddleware.updateAccountType)
     
