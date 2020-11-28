@@ -1,6 +1,7 @@
 const
     _ = require('lodash'),
-    stripe = require('../tools/stripe').Stripe;
+    stripe = require('../tools/stripe').Stripe,
+    IndexSchema = require('../tools/schema').schema;
 
 module.exports = {
     invoicePaymentFailed: async function(event) {
@@ -24,10 +25,50 @@ module.exports = {
         // - Update accountType back to last accountType
     },
     customerSubscriptionCreated: async function(event) {
-        console.log('Customer subscription created ', event.id)
+        const stripeCustomerId = event.data.object.customer
+
+        const findPayload = { stripeCustomerId, active: true, }
+
+        // Pull Billing
+        let billing = await IndexSchema.Billing.findOne(findPayload)
+
+        if (!billing) {
+            return res.status(500).send('Could not find billing')
+        }
+        if (!billing.accountType) {
+            return res.status(500).send('Could not find billing account type')
+        }
+
+        let subscriptionType = ''
+
+        const subscriptionPlan = event.data.object.items.data[0].plan.nickname
+
+        if (_.includes(subscriptionPlan, '_monthly')) {
+            subscriptionType = subscriptionPlan.replace('_monthly', '')
+        } else if (_.includes(subscriptionPlan, '_metered')) {
+            subscriptionType = subscriptionPlan.replace('_metered', '')
+        }
+
+        billing.accountType = subscriptionType
+        await billing.save()
     },
     customerSubscriptionDeleted: async function(event) {
-        console.log('Customer subscription deleted ', event.id)
+        const stripeCustomerId = event.data.object.customer
+
+        const findPayload = { stripeCustomerId, active: true, }
+
+        // Pull Billing
+        let billing = await IndexSchema.Billing.findOne(findPayload)
+
+        if (!billing) {
+            return res.status(500).send('Could not find billing')
+        }
+        if (!billing.accountType) {
+            return res.status(500).send('Could not find billing account type')
+        }
+
+        billing.accountType = 'free'
+        await billing.save()
     },
     customerSubscriptionUpdated: async function(event) {
         console.log('Customer subscription updated ', event.id)

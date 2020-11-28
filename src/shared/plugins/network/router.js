@@ -31,6 +31,7 @@ module.exports.config = function () {
     router.post('/remove-payment-method', StripeSetupIntent.removePaymentMethod)
 
     router.post('/create-subscription', StripeSubscription.createSubscription)
+    router.post('/cancel-subscription', StripeSubscription.cancelSubscription)
 
     return router;
 }

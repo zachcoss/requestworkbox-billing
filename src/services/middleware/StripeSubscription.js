@@ -67,8 +67,31 @@ module.exports = {
 
             const subscription = await stripe.subscriptions.create(subscriptionObject)
 
-            billing.accountType = upgradeTo
-            await billing.save()
+            return res.status(200).send('OK')
+        } catch (err) {
+            console.log(err)
+            return res.status(500).send('error intercepting webhook')
+        }
+    },
+    cancelSubscription: async function (req, res, next) {
+        try {
+            const findPayload = { sub: req.user.sub }
+            let billing = await IndexSchema.Billing.findOne(findPayload)
+
+            if (!billing) {
+                return res.status(401).send('Could not find billing')
+            }
+
+            const subscriptions = await stripe.subscriptions.list({
+                customer: billing.stripeCustomerId
+            });
+
+            const subscription = subscriptions.data[0].id
+
+            await stripe.subscriptions.del(subscription, {
+                invoice_now: true,
+                prorate: true,
+            })
 
             return res.status(200).send('OK')
         } catch (err) {
