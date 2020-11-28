@@ -3,6 +3,9 @@ const
     moment = require('moment'),
     Cognito = require('../tools/cognito').Cognito,
     IndexSchema = require('../../services/tools/schema').schema,
+    mailchimp = require('../tools/mailchimp').mailchimp,
+    mailchimpTransactional = require('../tools/mailchimp').mailchimpTransactional,
+    crypto = require('crypto'),
     Stripe = require('../tools/stripe').Stripe;
 
 module.exports = {
@@ -132,6 +135,21 @@ module.exports = {
             billing.scheduleWorkflowLast = moment().subtract(5, 'minutes')
 
             await billing.save()
+
+            const hash = crypto.createHash('md5').update(email).digest("hex")
+
+            const setListMember = await mailchimp.lists.setListMember(process.env.MAILCHIMP_LIST,hash,{
+                email_address: email,
+                status_if_new: "subscribed",
+            });
+
+            // const sendEmail = await mailchimpTransactional.messages.sendTemplate({
+            //     template_name: "Welcome Email",
+            //     template_content: [{}],
+            //     message: {
+            //         to: [{ email, }]
+            //     },
+            // });
 
             return res.status(200).send('OK')
             
