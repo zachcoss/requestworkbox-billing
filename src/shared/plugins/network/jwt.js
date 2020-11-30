@@ -5,7 +5,7 @@ const
     jwksAud = `${process.env.API_AWS_USER_POOL_CLIENT}`,
     jwksIss = `https://cognito-idp.us-east-1.amazonaws.com/${process.env.API_AWS_USER_POOL}`,
     jwksAlg = ['RS256'],
-    pathExceptions = ['/','/create-customer','/update-customer','/stripe-webhook'];
+    pathExceptions = ['/','/create-customer','/update-customer'];
 
 /**
  * 
@@ -17,7 +17,7 @@ module.exports.config = () => {
         secret: jwksRsa.expressJwtSecret({
             cache: true,
             rateLimit: true,
-            jwksRequestsPerMinute: 5,
+            jwksRequestsPerMinute: 10,
             jwksUri: jwksUri
         }),
         // allows access token instead of id token
