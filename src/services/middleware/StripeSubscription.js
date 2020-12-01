@@ -34,7 +34,8 @@ module.exports = {
             })[0]
 
             const prices = await stripe.prices.list({
-                product: selectedProduct.id
+                product: selectedProduct.id,
+                active: true,
             })
 
             const selectedPrices = _.map(prices.data, (price) => {

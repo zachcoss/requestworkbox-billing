@@ -1,6 +1,7 @@
 const
     _ = require('lodash'),
     stripe = require('../tools/stripe').Stripe,
+    moment = require('moment'),
     IndexSchema = require('../tools/schema').schema;
 
 module.exports = {
@@ -50,6 +51,9 @@ module.exports = {
         }
 
         billing.accountType = subscriptionType
+        billing.stripeCurrentPeriodStart = moment(event.data.object.current_period_start * 1000).toDate()
+        billing.stripeCurrentPeriodEnd = moment(event.data.object.current_period_end * 1000).toDate()
+        billing.stripeSubscriptionId = event.data.object.id
         await billing.save()
     },
     customerSubscriptionDeleted: async function(event) {
@@ -68,6 +72,9 @@ module.exports = {
         }
 
         billing.accountType = 'free'
+        billing.stripeCurrentPeriodStart = undefined
+        billing.stripeCurrentPeriodEnd = undefined
+        billing.stripeSubscriptionId = undefined
         await billing.save()
     },
     customerSubscriptionUpdated: async function(event) {

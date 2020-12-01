@@ -6,7 +6,7 @@ const
 module.exports.init = () => {
     console.log('initializing billing jobs')
 
-    usage.calculateUsage()
+    // usage.calculateUsage()
 
     // // Runs every minute
     const job = new CronJob('0 */1 * * * *', function() {
