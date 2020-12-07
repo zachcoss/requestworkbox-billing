@@ -20,11 +20,8 @@ module.exports = {
         return request
     },
     startStatuschecks: async function(interval) {
-        console.log(`Searching for statuschecks at ${interval} seconds`)
 
         const statuschecks = await IndexSchema.Statuscheck.find({ interval: interval, active :true, status: 'running', })
-
-        console.log(`Found ${_.size(statuschecks)} statuschecks at ${interval} seconds`)
 
         for (const statuscheck of statuschecks) {
             try {
