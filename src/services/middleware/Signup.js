@@ -56,7 +56,11 @@ module.exports = {
             const billing = new IndexSchema.Billing({ sub: sub, accountType: 'free' })
             await billing.save()
 
-            const setting = new IndexSchema.Setting({ sub: sub })
+            const setting = new IndexSchema.Setting({
+                sub: sub,
+                email: incomingEmail,
+                username: incomingUsername,
+            })
             await setting.save()
 
             return res.status(200).send('OK')
