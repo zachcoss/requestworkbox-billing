@@ -34,7 +34,7 @@ module.exports = {
             })
 
             if (!_.size(userFilter) || _.size(userFilter) > 1) {
-                return res.status(401).send('error locating signup credentials') 
+                return res.status(401).send('Error locating signup credentials.') 
             }
 
             const user = userFilter[0]
@@ -50,8 +50,11 @@ module.exports = {
             })
 
             if (!usernameVerified || !emailVerified) {
-                return res.status(401).send('error verifying signup credentials') 
+                return res.status(401).send('Error verifying signup credentials.') 
             }
+
+            const foundBilling = await IndexSchema.Billing.findOne({ sub: sub })
+            if (foundBilling && foundBilling._id) return res.status(401).send('Error verifying signup.') 
 
             const billing = new IndexSchema.Billing({ sub: sub, accountType: 'free' })
             await billing.save()
@@ -91,13 +94,13 @@ module.exports = {
             })
 
             if (!_.size(userFilter) || _.size(userFilter) > 1) {
-                return res.status(401).send('error locating confirm credentials') 
+                return res.status(401).send('Error locating confirm credentials.') 
             }
 
             const user = userFilter[0]
 
             if (user.UserStatus !== 'CONFIRMED') {
-                return res.status(401).send('error verifying confirm status') 
+                return res.status(401).send('Error verifying confirm status.') 
             }
 
             _.each(user.Attributes, (attribute) => {
@@ -108,6 +111,9 @@ module.exports = {
                     email = attribute.Value
                 }
             })
+
+            const foundBilling = await IndexSchema.Billing.findOne({ sub: sub })
+            if (foundBilling && foundBilling._id) return res.status(401).send('Error verifying signup.')
 
             const findPayload = { sub: sub }
             let billing = await IndexSchema.Billing.findOne(findPayload)

@@ -18,15 +18,18 @@ const router = require('./src/shared/plugins/network/router')
 const routerStripeWebhook = require('./src/shared/plugins/network/routerStripeWebhook')
 
 app.set('port', port);
+app.set('x-powered-by', false)
 
+const compression = require('compression')
+app.use(compression())
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
-    origin: ['http://localhost:8080','https://dashboard.requestworkbox.com'],
+    origin: process.env.NODE_ENV === 'production' ? 'https://dashboard.requestworkbox.com' : 'http://localhost:8080',
     methods: ['GET','POST'],
-    allowedHeaders: ['Authorization'],
+    allowedHeaders: ['authorization','content-type'],
     exposedHeaders: [],
     credentials: true,
     maxAge: 86400,
