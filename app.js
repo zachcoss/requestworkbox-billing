@@ -23,7 +23,15 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+app.use(cors({
+    // includes stripe
+    origin: ['http://localhost:8080','https://dashboard.requestworkbox.com','https://api.stripe.com'],
+    methods: ['GET','POST'],
+    allowedHeaders: ['x-api-key','Authorization'],
+    exposedHeaders: [],
+    credentials: true,
+    maxAge: 86400,
+}))
 
 // Rearranged middleware to support raw stripe webhook body payloads
 app.use('/', routerStripeWebhook.config())
