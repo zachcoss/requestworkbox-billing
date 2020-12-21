@@ -24,10 +24,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
-    // includes stripe
-    origin: ['http://localhost:8080','https://dashboard.requestworkbox.com','https://api.stripe.com'],
+    origin: ['http://localhost:8080','https://dashboard.requestworkbox.com'],
     methods: ['GET','POST'],
-    allowedHeaders: ['x-api-key','Authorization'],
+    allowedHeaders: ['Authorization'],
     exposedHeaders: [],
     credentials: true,
     maxAge: 86400,
