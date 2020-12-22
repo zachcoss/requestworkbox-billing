@@ -5,7 +5,7 @@ const
     jwksAud = `${process.env.API_AWS_USER_POOL_CLIENT}`,
     jwksIss = `https://cognito-idp.us-east-1.amazonaws.com/${process.env.API_AWS_USER_POOL}`,
     jwksAlg = ['RS256'],
-    pathExceptions = ['/','/create-customer','/update-customer'];
+    _ = require('lodash');
 
 /**
  * 
@@ -25,7 +25,17 @@ module.exports.config = () => {
         issuer: jwksIss,
         algorithms: jwksAlg
     })
-    .unless({ path: pathExceptions })
+    .unless({
+        custom: function(req) {
+            if (req.path === '/') return true
+            else if (req.headers['x-api-key']) return true
+            else if (req.headers['authorization']) return false
+            else {
+                if (_.includes(req.path, '/stripe-webhook')) return true
+                else return false
+            }
+        },
+    })
 }
 
 /**

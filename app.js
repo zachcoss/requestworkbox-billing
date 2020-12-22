@@ -14,11 +14,13 @@ const app = express();
 const port = process.env.PORT
 
 const jwt = require('./src/shared/plugins/network/jwt')
-const router = require('./src/shared/plugins/network/router')
-const routerStripeWebhook = require('./src/shared/plugins/network/routerStripeWebhook')
+const router = require('./src/shared/plugins/network/routerAPI')
+const routerAPI = require('./src/shared/plugins/network/routerAPI')
+const routerStripe = require('./src/shared/plugins/network/routerStripe')
 
 app.set('port', port);
 app.set('x-powered-by', false)
+app.set('json escape', true)
 
 const compression = require('compression')
 app.use(compression())
@@ -35,12 +37,11 @@ app.use(cors({
     maxAge: 86400,
 }))
 
-// Rearranged middleware to support raw stripe webhook body payloads
-app.use('/', routerStripeWebhook.config())
-
-app.use(express.json())
 app.use(jwt.config())
 app.use('/', router.config())
+app.use('/', routerStripe.config())
+app.use(express.json())
+app.use('/', routerAPI.config())
 app.use(jwt.handler)
 
 const server = http.createServer(app);
