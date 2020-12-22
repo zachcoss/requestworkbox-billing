@@ -1,53 +1,9 @@
 const 
     _ = require('lodash'),
     moment = require('moment'),
-    stripe = require('../tools/stripe').Stripe,
     IndexSchema = require('../../services/tools/schema').schema;
 
 module.exports = {
-    updateStripe: async function(user) {
-        if (!user.stripeCurrentPeriodStart || user.stripeCurrentPeriodStart === 0) {
-            console.log('skipping update to stripe')
-            return;
-        }
-
-        if (!user.stripeSubscriptionId) {
-            console.log('missing stripe subscription id')
-            return;
-        }
-        
-        console.log('updating stripe')
-
-        const usageDays = await IndexSchema.UsageDay.find({
-            sub: user.sub,
-            start: {
-                $gte: user.stripeCurrentPeriodStart,
-            },
-        }).sort({ start: -1 })
-
-        let totalBytesDown = 0,
-            totalBytesUp = 0;
-
-        _.each(usageDays, (usageDay) => {
-            totalBytesDown = totalBytesDown + (usageDay.totalBytesDown || 0)
-            totalBytesUp = totalBytesUp + (usageDay.totalBytesUp || 0)
-        })
-
-        let finalKB = (totalBytesDown + totalBytesUp) / 1024
-        let finalMB = finalKB / 1024
-        
-        if (finalMB < 1) {
-            console.log('Less than 1MB, skipping', finalMB)
-        } else {
-            console.log('Reporting finalMB', finalMB)
-            
-            await stripe.subscriptionItems.createUsageRecord(user.stripeSubscriptionId, {
-                quantity: finalMB,
-                timestamp: moment(usageDays[0].end).unix(),
-                action: 'set',
-            })
-        }
-    },
     startUsageDays: async function(user) {
         const start = moment(user.createdAt)
         let end = moment(user.createdAt).add(1, 'hour')
@@ -154,9 +110,6 @@ module.exports = {
             const usageDay = new IndexSchema.UsageDay(usageDayData)
             await usageDay.save()
             console.log('new day')
-
-            // Update stripe with most recent max
-            await module.exports.updateStripe(user)
         } else {
             mostRecentUsageDay.end = end
             mostRecentUsageDay.hours.push({

@@ -54,23 +54,22 @@ module.exports = {
             }
 
             const foundBilling = await IndexSchema.Billing.findOne({ sub: sub })
-            if (foundBilling && foundBilling._id) return res.status(401).send('Error verifying signup.') 
+            if (foundBilling && foundBilling._id) return res.status(401).send('Error verifying signup.')
+            
+            const foundSetting = await IndexSchema.Setting.findOne({ sub: sub })
+            if (foundSetting && foundSetting._id) return res.status(401).send('Error verifying signup.')
 
-            const billing = new IndexSchema.Billing({ sub: sub, accountType: 'free' })
+            const billing = new IndexSchema.Billing({ sub: sub })
             await billing.save()
 
-            const setting = new IndexSchema.Setting({
-                sub: sub,
-                email: incomingEmail,
-                username: incomingUsername,
-            })
+            const setting = new IndexSchema.Setting({ sub: sub, username: incomingUsername })
             await setting.save()
 
             return res.status(200).send('OK')
 
         } catch (err) {
-            console.log('create customer error', err)
-            return res.status(500).send('error creating customer')
+            console.log('Create customer error', err)
+            return res.status(500).send('Create customer error.')
         }
     },
     updateCustomer: async function (req, res, next) {
@@ -112,38 +111,16 @@ module.exports = {
                 }
             })
 
-            const foundBilling = await IndexSchema.Billing.findOne({ sub: sub })
-            if (foundBilling && foundBilling._id) return res.status(401).send('Error verifying signup.')
-
-            const findPayload = { sub: sub }
-            let billing = await IndexSchema.Billing.findOne(findPayload)
-
-            if (!billing) {
-                return res.status(401).send('Could not find billing')
-            }
-            if (!billing.accountType) {
-                return res.status(401).send('Could not find billing account type')
-            }
+            const billing = await IndexSchema.Billing.findOne({ sub: sub })
+            if (!billing || !billing._id) return res.status(401).send('Could not find billing.')
+            if (billing.stripeCustomerId) return res.status(401).send('User already exists.')
 
             const customer = await Stripe.customers.create({
                 email: email,
-                metadata: {
-                    sub: sub,
-                }
+                metadata: { sub: sub, }
             })
 
             billing.stripeCustomerId = customer.id
-
-            billing.accountType = 'free'
-
-            billing.returnWorkflowCount = 0
-            billing.queueWorkflowCount = 0
-            billing.scheduleWorkflowCount = 0
-
-            billing.returnWorkflowLast = moment().subtract(5, 'minutes')
-            billing.queueWorkflowLast = moment().subtract(5, 'minutes')
-            billing.scheduleWorkflowLast = moment().subtract(5, 'minutes')
-
             await billing.save()
 
             const hash = crypto.createHash('md5').update(email).digest("hex")
@@ -151,7 +128,7 @@ module.exports = {
             const setListMember = await mailchimp.lists.setListMember(process.env.MAILCHIMP_LIST,hash,{
                 email_address: email,
                 status_if_new: "subscribed",
-            });
+            })
 
             // const sendEmail = await mailchimpTransactional.messages.sendTemplate({
             //     template_name: "Welcome Email",
@@ -164,8 +141,8 @@ module.exports = {
             return res.status(200).send('OK')
             
         } catch (err) {
-            console.log(err)
-            return res.status(500).send('error updating customer')
+            console.log('Update customer error', err)
+            return res.status(500).send('Update customer error.')
         }
     },
 }

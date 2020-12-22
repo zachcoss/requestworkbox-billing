@@ -20,7 +20,6 @@ module.exports.config = function () {
     router.post('/get-account-details', AccountMiddleware.getAccountDetails)
     router.post('/preview-checkout-price', AccountMiddleware.previewCheckoutPrice)
     
-    router.post('/update-global-workflow-status', SettingMiddleware.updateGlobalWorkflowStatus)
     router.post('/generate-token', SettingMiddleware.generateToken)
     router.post('/revoke-token', SettingMiddleware.revokeToken)
 
