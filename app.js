@@ -15,7 +15,7 @@ const app = express();
 const port = process.env.PORT
 
 const jwt = require('./src/shared/plugins/network/jwt')
-const router = require('./src/shared/plugins/network/routerAPI')
+const router = require('./src/shared/plugins/network/router')
 const routerAPI = require('./src/shared/plugins/network/routerAPI')
 const routerStripe = require('./src/shared/plugins/network/routerStripe')
 

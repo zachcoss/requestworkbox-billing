@@ -1,6 +1,5 @@
 const 
-    mailchimp = require("@mailchimp/mailchimp_marketing"),
-    mailchimpTransactional = require('@mailchimp/mailchimp_transactional')(process.env.MAILCHIMP_API);
+    mailchimp = require("@mailchimp/mailchimp_marketing");
 
 mailchimp.setConfig({
     apiKey: process.env.MAILCHIMP_API,
@@ -9,5 +8,4 @@ mailchimp.setConfig({
 
 module.exports = {
     mailchimp: mailchimp,
-    mailchimpTransactional: mailchimpTransactional,
 }

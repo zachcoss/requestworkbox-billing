@@ -27,13 +27,12 @@ module.exports.config = () => {
     })
     .unless({
         custom: function(req) {
+            // Does not support x-api-key
             if (req.path === '/') return true
-            else if (req.headers['x-api-key']) return true
-            else if (req.headers['authorization']) return false
-            else {
-                if (_.includes(req.path, '/stripe-webhook')) return true
-                else return false
-            }
+            else if (_.includes(req.path, '/create-customer')) return true
+            else if (_.includes(req.path, '/update-customer')) return true
+            else if (_.includes(req.path, '/stripe-webhook')) return true
+            else return false
         },
     })
 }
