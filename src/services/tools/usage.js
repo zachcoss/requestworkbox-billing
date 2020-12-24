@@ -4,16 +4,35 @@ const
     IndexSchema = require('../../services/tools/schema').schema;
 
 module.exports = {
-    startUsageDays: async function(user) {
-        const start = moment(user.createdAt)
-        let end = moment(user.createdAt).add(1, 'hour')
+    updateProjectUsage: async function(project, usageDays) {
+        // get project usage total
+        let currentUsage = 0;
+
+        for (usageDay of usageDays) {
+            const totalMBs = (usageDay.totalBytesDown + usageDay.totalBytesUp) * 1000 * 1000
+            currentUsage = currentUsage + totalMBs
+        }
+
+        project.usage = currentUsage
+        project.usageRemaining = project.projectTotal - currentUsage
+
+        if (project.usageRemaining < 0) {
+            project.globalWorkflowStatus = 'locked'
+            console.log('Locked', project.name)
+        }
+
+        await project.save()
+    },
+    startUsageDays: async function(project) {
+        const start = moment(project.createdAt)
+        let end = moment(project.createdAt).add(1, 'hour')
 
         if (start.dayOfYear() !== end.dayOfYear()) {
-            end = moment(user.createdAt).endOf('day')
+            end = moment(project.createdAt).endOf('day')
         }
 
         const instances = await IndexSchema.Instance.find({
-            sub: user.sub,
+            projectId: project._id,
             createdAt: {
                 $gte: start,
                 $lt: end,
@@ -31,7 +50,7 @@ module.exports = {
         })
 
         let usageDayData = {
-            sub: user.sub,
+            projectId: project._id,
             start,
             end,
             totalBytesDown,
@@ -48,9 +67,9 @@ module.exports = {
 
         const usageDay = new IndexSchema.UsageDay(usageDayData)
         await usageDay.save()
-        console.log('created new')
+        console.log('Created initial day.')
     },
-    updateUsageDays: async function(user, mostRecentUsageDay) {
+    updateUsageDays: async function(project, mostRecentUsageDay) {
         let start = moment(mostRecentUsageDay.end)
         let end = moment(mostRecentUsageDay.end).add(1, 'hour')
 
@@ -68,12 +87,12 @@ module.exports = {
         }
 
         if (end.isAfter(moment().subtract(15 ,'minutes'))) {
-            console.log('pending')
+            console.log('Pending project usage.')
             return;
         }
 
         const instances = await IndexSchema.Instance.find({
-            sub: mostRecentUsageDay.sub,
+            projectId: project._id,
             createdAt: {
                 $gte: start,
                 $lt: end,
@@ -92,7 +111,7 @@ module.exports = {
 
         if (moment(mostRecentUsageDay.end).dayOfYear() !== start.dayOfYear()) {
             let usageDayData = {
-                sub: mostRecentUsageDay.sub,
+                projectId: project._id,
                 start,
                 end,
                 totalBytesDown,
@@ -109,7 +128,7 @@ module.exports = {
     
             const usageDay = new IndexSchema.UsageDay(usageDayData)
             await usageDay.save()
-            console.log('new day')
+            console.log('Created new day.')
         } else {
             mostRecentUsageDay.end = end
             mostRecentUsageDay.hours.push({
@@ -125,24 +144,29 @@ module.exports = {
             mostRecentUsageDay.totalMs = mostRecentUsageDay.totalMs + (totalMs || 0)
 
             await mostRecentUsageDay.save()
-            console.log('updated')
+            console.log('Updated project usage.')
         }
 
     },
     calculateUsage: async function() {
-        console.log('Searching for users')
+        console.log('Calculating project usage.')
 
-        const users = await IndexSchema.Billing.find()
+        const projects = await IndexSchema.Project.find({})
 
-        for (const user of users) {
-            const userSub = user.sub
-            const usageDays = await IndexSchema.UsageDay.find({ sub: userSub }).sort({ start: -1 }).limit(1)
+        const startUsage = new Date()
+
+        for (const project of projects) {
+
+            const usageDays = await IndexSchema.UsageDay.find({ projectId: project._ID }).sort({ start: -1 }).limit(1)
 
             if (!_.size(usageDays)) {
-                await module.exports.startUsageDays(user)
+                await module.exports.startUsageDays(project)
             } else {
-                await module.exports.updateUsageDays(user, usageDays[0])
+                await module.exports.updateUsageDays(project, usageDays[0])
+                await module.exports.updateProjectUsage(project, usageDays)
             }
         }
+
+        console.log(`Usage job time: ${new Date() - startUsage}ms`)
     },
 }
