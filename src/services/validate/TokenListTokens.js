@@ -25,7 +25,7 @@ module.exports = {
         try {
             return payload
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     request: async function(payload) {
@@ -41,22 +41,17 @@ module.exports = {
 
             return tokens.toJSON()
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     response: function(request, res) {
         let response = _.pickBy(request, function(value, key) {
-            return _.includes(keys.concat(permissionKeys), key)
+            return _.includes(['snippet'], key)
         })
         return res.status(200).send(response)
     },
     error: function(err, res) {
-        if (err.message === 'Invalid or missing token.') return res.status(401).send(err.message)
-        else if (err.message === 'Error: Settings not found.') return res.status(401).send('Invalid or missing token.')
-        else if (err.message === 'Error: Project not found.') return res.status(400).send('Project not found.')
-        else {
-            console.log('Create project error', err)
-            return res.status(500).send('Request error')
-        }
+        console.log('Token: list tokens error.', err)
+        return res.status(400).send(`Token: list tokens error. ${err.message}`)
     },
 }

@@ -5,7 +5,7 @@ const
     removePaymentMethod = require('./StripeRemovePaymentMethod'),
     createSubscription = require('./StripeCreateSubscription'),
     cancelSubscription = require('./StripeCancelSubscription'),
-    previewCheckoutPrice = require('./StripePreviewCheckoutPress');
+    previewCheckoutPrice = require('./StripePreviewCheckoutPrice');
 
 module.exports = {
     createSetupIntent: createSetupIntent,

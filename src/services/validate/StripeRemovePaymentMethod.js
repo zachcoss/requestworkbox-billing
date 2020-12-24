@@ -28,7 +28,7 @@ module.exports = {
         try {
             return payload
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     request: async function(payload) {
@@ -59,22 +59,14 @@ module.exports = {
 
             return 'OK'
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     response: function(request, res) {
-        let response = _.pickBy(request, function(value, key) {
-            return _.includes(keys.concat(permissionKeys), key)
-        })
-        return res.status(200).send(response)
+        return res.status(200).send(request)
     },
     error: function(err, res) {
-        if (err.message === 'Invalid or missing token.') return res.status(401).send(err.message)
-        else if (err.message === 'Error: Settings not found.') return res.status(401).send('Invalid or missing token.')
-        else if (err.message === 'Error: Project not found.') return res.status(400).send('Project not found.')
-        else {
-            console.log('Remove payment method error', err)
-            return res.status(500).send('Request error')
-        }
+        console.log('Stripe: remove payment method error.', err)
+        return res.status(400).send(`Stripe: remove payment method error. ${err.message}`)
     },
 }

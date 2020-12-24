@@ -25,7 +25,7 @@ module.exports = {
         try {
             return payload
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     request: async function(payload) {
@@ -44,22 +44,17 @@ module.exports = {
 
             return { clientSecret: intent.client_secret }
         } catch(err) {
-            throw new Error(err)
+            throw new Error(err.message)
         }
     },
     response: function(request, res) {
         let response = _.pickBy(request, function(value, key) {
-            return _.includes(keys.concat(permissionKeys), key)
+            return _.includes(['clientSecret'], key)
         })
         return res.status(200).send(response)
     },
     error: function(err, res) {
-        if (err.message === 'Invalid or missing token.') return res.status(401).send(err.message)
-        else if (err.message === 'Error: Settings not found.') return res.status(401).send('Invalid or missing token.')
-        else if (err.message === 'Error: Project not found.') return res.status(400).send('Project not found.')
-        else {
-            console.log('Setup intent error', err)
-            return res.status(500).send('Request error')
-        }
+        console.log('Stripe: create setup intent error.', err)
+        return res.status(400).send(`Stripe: create setup intent error. ${err.message}`)
     },
 }
