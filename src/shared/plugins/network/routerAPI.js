@@ -1,22 +1,23 @@
 const 
     express = require('express'),
     router = express.Router(),
-    SignupMiddleware = require('../../../services/middleware/Signup'),
-    AccountMiddleware = require('../../../services/middleware/Account'),
+    Signup = require('../../../services/middleware/Signup'),
+    Token = require('../../../services/middleware/Token'),
     SettingMiddleware = require('../../../services/middleware/Setting'),
     StripeSetupIntent = require('../../../services/middleware/StripeSetupIntent'),
     StripeSubscription = require('../../../services/middleware/StripeSubscription');
 
 module.exports.config = function () {
 
-    router.post('/create-customer', SignupMiddleware.createCustomer)
-    router.post('/update-customer', SignupMiddleware.updateCustomer)
+    router.post('/create-customer', Signup.createCustomer)
+    router.post('/update-customer', Signup.updateCustomer)
 
     router.post('/get-account-details', AccountMiddleware.getAccountDetails)
     router.post('/preview-checkout-price', AccountMiddleware.previewCheckoutPrice)
     
-    router.post('/generate-token', SettingMiddleware.generateToken)
-    router.post('/revoke-token', SettingMiddleware.revokeToken)
+    router.post('/list-tokens', Token.listTokens)
+    router.post('/generate-token', Token.generateToken)
+    router.post('/revoke-token', Token.revokeToken)
 
     router.post('/create-setup-intent', StripeSetupIntent.createSetupIntent)
     router.post('/update-payment-method', StripeSetupIntent.updatePaymentMethod)

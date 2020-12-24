@@ -1,9 +1,7 @@
 const
     _ = require('lodash'),
-    stripe = require('../tools/stripe').Stripe,
-    moment = require('moment'),
-    IndexSchema = require('../tools/schema').schema;
-
+    stripe = require('../tools/stripe').Stripe;
+    
 module.exports = {
     invoicePaymentFailed: async function(event) {
         console.log('Invoice payment failed ', event.id)
