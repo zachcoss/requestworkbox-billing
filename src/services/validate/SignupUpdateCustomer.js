@@ -18,7 +18,7 @@ module.exports = {
     validate: function(req, res) {
 
         // For non-user access
-        if (req.user || req.user.sub) throw new Error('Invalid or missing token.')
+        if (req.user) throw new Error('Invalid or missing token.')
         if (!req.body.username) throw new Error('Missing username.')
 
         if (!_.isAlphanumeric(req.body.username)) throw new Error('Incorrect username type.')

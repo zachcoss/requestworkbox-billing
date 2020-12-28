@@ -14,7 +14,7 @@ module.exports = {
         }
 
         project.usage = currentUsage
-        project.usageRemaining = project.projectTotal - currentUsage
+        project.usageRemaining = project.usageTotal - currentUsage
 
         if (project.usageRemaining < 0) {
             project.globalWorkflowStatus = 'locked'
@@ -157,7 +157,7 @@ module.exports = {
 
         for (const project of projects) {
 
-            const usageDays = await IndexSchema.UsageDay.find({ projectId: project._ID }).sort({ start: -1 }).limit(1)
+            const usageDays = await IndexSchema.UsageDay.find({ projectId: project._id }).sort({ start: -1 }).limit(1)
 
             if (!_.size(usageDays)) {
                 await module.exports.startUsageDays(project)

@@ -15,7 +15,7 @@ module.exports = {
     validate: function(req, res) {
 
         // For non-user access
-        if (req.user || req.user.sub) throw new Error('Invalid or missing token.')
+        if (req.user) throw new Error('Invalid or missing token.')
         if (!req.body.username) throw new Error('Missing username.')
         if (!req.body.email) throw new Error('Missing email.')
 
@@ -56,18 +56,18 @@ module.exports = {
                 }
             })
 
-            if (!_.size(userFilter) || _.size(userFilter) > 1) return res.status(401).send('Error locating signup credentials.') 
+            if (!_.size(userFilter) || _.size(userFilter) > 1) throw new Error('Error locating signup credentials.') 
 
             const user = userFilter[0]
 
             _.each(user.Attributes, (attribute) => {
-                if (attribute.Name === 'email' && (attribute.Value === payload.incomingEmail)) emailVerified = true
-                else emailVerified = false
-
-                if (attribute.Name === 'sub' && emailVerified == true) sub = attribute.Value
+                if (attribute.Name === 'email' && (attribute.Value === payload.incomingEmail)) {
+                    emailVerified = true
+                }
+                if (attribute.Name === 'sub') sub = attribute.Value
             })
 
-            if (!usernameVerified || !emailVerified || !sub) return res.status(401).send('Error verifying signup credentials.')
+            if (!usernameVerified || !emailVerified || !sub) throw new Error('Error verifying signup credentials.')
 
             const billing = new IndexSchema.Billing({
                 sub,
