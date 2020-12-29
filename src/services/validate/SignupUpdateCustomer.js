@@ -107,6 +107,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Signup: update customer error.', err)
-        return res.status(400).send(`Signup: update customer error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

@@ -55,6 +55,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Stripe: create setup intent error.', err)
-        return res.status(400).send(`Stripe: create setup intent error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

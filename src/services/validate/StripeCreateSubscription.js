@@ -97,6 +97,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Stripe: create subscription error.', err)
-        return res.status(400).send(`Stripe: create subscription error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

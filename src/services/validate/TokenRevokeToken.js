@@ -66,6 +66,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Token: revoke token error.', err)
-        return res.status(400).send(`Token: revoke token error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

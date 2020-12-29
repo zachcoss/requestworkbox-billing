@@ -59,6 +59,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Stripe: cancel subscription error.', err)
-        return res.status(400).send(`Stripe: cancel subscription error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

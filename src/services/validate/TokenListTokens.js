@@ -52,6 +52,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Token: list tokens error.', err)
-        return res.status(400).send(`Token: list tokens error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

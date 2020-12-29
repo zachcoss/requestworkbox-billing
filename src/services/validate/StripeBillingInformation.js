@@ -62,6 +62,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Stripe: billing information error.', err)
-        return res.status(400).send(`Stripe: billing information error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

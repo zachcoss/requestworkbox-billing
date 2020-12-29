@@ -64,6 +64,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Stripe: update payment method error.', err)
-        return res.status(400).send(`Stripe: update payment method error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }

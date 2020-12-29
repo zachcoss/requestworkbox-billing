@@ -73,6 +73,6 @@ module.exports = {
     },
     error: function(err, res) {
         console.log('Token: generate token error.', err)
-        return res.status(400).send(`Token: generate token error. ${err.message}`)
+        return res.status(400).send(err.message)
     },
 }
