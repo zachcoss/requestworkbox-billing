@@ -35,7 +35,9 @@ module.exports = {
     request: async function(payload) {
         try {
 
-            let setting = await IndexSchema.Setting.findOne(payload)
+            let setting = await IndexSchema.Setting.findOne({
+                sub: payload.sub,
+            })
             if (!setting || !setting._id) throw new Error('Settings not found.')
 
             const archivedTokens = await IndexSchema.Token.countDocuments({

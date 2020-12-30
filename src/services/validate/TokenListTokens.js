@@ -36,15 +36,16 @@ module.exports = {
 
             let tokens = await IndexSchema.Token.find({
                 sub: setting.sub,
-                active: false,
-            }, '-_id snippet')
+                active: true,
+            }, '-_id snippet').lean()
 
-            return tokens.toJSON()
+            return tokens
         } catch(err) {
             throw new Error(err.message)
         }
     },
     response: function(request, res) {
+        return res.status(200).send(request)
         let response = _.pickBy(request, function(value, key) {
             return _.includes(['snippet'], key)
         })
