@@ -9,7 +9,7 @@ module.exports = {
         let currentUsage = 0;
 
         for (usageDay of usageDays) {
-            const totalMBs = (usageDay.totalBytesDown + usageDay.totalBytesUp) * 1000 * 1000
+            const totalMBs = (usageDay.totalBytesDown + usageDay.totalBytesUp) / 1000
             currentUsage = currentUsage + totalMBs
         }
 
@@ -157,7 +157,7 @@ module.exports = {
 
         for (const project of projects) {
 
-            const usageDays = await IndexSchema.UsageDay.find({ projectId: project._id }).sort({ start: -1 }).limit(1)
+            const usageDays = await IndexSchema.UsageDay.find({ projectId: project._id }).sort({ start: -1 })
 
             if (!_.size(usageDays)) {
                 await module.exports.startUsageDays(project)
