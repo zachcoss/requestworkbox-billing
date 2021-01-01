@@ -3,18 +3,16 @@ const
     billingInformation = require('./StripeBillingInformation'),
     updatePaymentMethod = require('./StripeUpdatePaymentMethod'),
     removePaymentMethod = require('./StripeRemovePaymentMethod'),
-    createSubscription = require('./StripeCreateSubscription'),
-    cancelSubscription = require('./StripeCancelSubscription'),
-    previewCheckoutPrice = require('./StripePreviewCheckoutPrice');
+    createPaymentIntentUpgrade = require('./StripeCreatePaymentIntentUpgrade'),
+    createPaymentIntentDataTransfer = require('./StripeCreatePaymentIntentDatatransfer');
 
 module.exports = {
-    createSetupIntent: createSetupIntent,
-    billingInformation: billingInformation,
+    billingInformation,
     
-    updatePaymentMethod: updatePaymentMethod,
-    removePaymentMethod: removePaymentMethod,
+    updatePaymentMethod,
+    removePaymentMethod,
 
-    createSubscription: createSubscription,
-    cancelSubscription: cancelSubscription,
-    previewCheckoutPrice: previewCheckoutPrice,
+    createSetupIntent,
+    createPaymentIntentUpgrade,
+    createPaymentIntentDataTransfer,
 }
