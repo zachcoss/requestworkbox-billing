@@ -63,7 +63,8 @@ module.exports = {
         try {
             if (_.includes(req.path, '/stripe-webhook')) return next()
 
-            const origin = `${req.protocol}://${req.hostname}`
+            const origin = `${req.secure ? 'https' : 'http'}://${req.hostname}`
+            console.log('incoming origin', origin)
             const allowOrigin = process.env.NODE_ENV === 'production' ? 'https://dashboard.requestworkbox.com' : 'http://localhost'
             
             if (origin !== allowOrigin) throw new Error('Incorrect origin type.')

@@ -111,6 +111,12 @@ module.exports = {
                 })
 
                 if (couponsRedeemed > 0) throw new Error('Coupon has already been redeemed.')
+
+                if (intent.paymentIntentId && _.isString(intent.paymentIntentId) && intent.paymentIntentId !== '') {
+                    await stripe.paymentIntents.cancel(intent.paymentIntentId, {
+                        cancellation_reason: 'abandoned',
+                    })
+                }
                 
                 intent.status = 'completed'
                 intent.price = 0

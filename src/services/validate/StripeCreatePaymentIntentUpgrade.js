@@ -71,6 +71,10 @@ module.exports = {
     request: async function({ payload, project }) {
         try {
 
+            if (payload.product === 'standard' && !_.includes(['free'], project.projectType)) throw new Error('Purchase not supported.')
+            if (payload.product === 'developer' && !_.includes(['free','standard'], project.projectType)) throw new Error('Purchase not supported.')
+            if (payload.product === 'professional' && !_.includes(['free','standard','developer'], project.projectType)) throw new Error('Purchase not supported.')
+
             const 
                 price = pricing[process.env.NODE_ENV][payload.product],
                 intentType = 'upgrade';
@@ -111,6 +115,12 @@ module.exports = {
                 })
 
                 if (couponsRedeemed > 0) throw new Error('Coupon has already been redeemed.')
+
+                if (intent.paymentIntentId && _.isString(intent.paymentIntentId) && intent.paymentIntentId !== '') {
+                    await stripe.paymentIntents.cancel(intent.paymentIntentId, {
+                        cancellation_reason: 'abandoned',
+                    })
+                }
                 
                 intent.status = 'completed'
                 intent.price = 0

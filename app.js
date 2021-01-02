@@ -22,6 +22,7 @@ const routerStripe = require('./src/shared/plugins/network/routerStripe')
 app.set('port', port);
 app.set('x-powered-by', false)
 app.set('json escape', true)
+app.set('trust proxy', true)
 
 app.use(logger('common'));
 app.use(compression())

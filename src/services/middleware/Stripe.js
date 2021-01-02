@@ -32,14 +32,24 @@ module.exports = {
             return ValidateStripe.createPaymentIntentUpgrade.error(err, res)
         }
     },
-    createPaymentIntentDatatransfer: async (req, res, next) => {
+    createPaymentIntentDataTransfer: async (req, res, next) => {
         try {
-            const payload = ValidateStripe.createPaymentIntentDatatransfer.validate(req)
-            const authorize = await ValidateStripe.createPaymentIntentDatatransfer.authorize(payload)
-            const request = await ValidateStripe.createPaymentIntentDatatransfer.request(authorize)
-            return ValidateStripe.createPaymentIntentDatatransfer.response(request, res)
+            const payload = ValidateStripe.createPaymentIntentDataTransfer.validate(req)
+            const authorize = await ValidateStripe.createPaymentIntentDataTransfer.authorize(payload)
+            const request = await ValidateStripe.createPaymentIntentDataTransfer.request(authorize)
+            return ValidateStripe.createPaymentIntentDataTransfer.response(request, res)
         } catch (err) {
-            return ValidateStripe.createPaymentIntentDatatransfer.error(err, res)
+            return ValidateStripe.createPaymentIntentDataTransfer.error(err, res)
+        }
+    },
+    confirmPaymentIntent: async (req, res, next) => {
+        try {
+            const payload = ValidateStripe.confirmPaymentIntent.validate(req)
+            const authorize = await ValidateStripe.confirmPaymentIntent.authorize(payload)
+            const request = await ValidateStripe.confirmPaymentIntent.request(authorize)
+            return ValidateStripe.confirmPaymentIntent.response(request, res)
+        } catch (err) {
+            return ValidateStripe.confirmPaymentIntent.error(err, res)
         }
     },
     updatePaymentMethod: async (req, res, next) => {

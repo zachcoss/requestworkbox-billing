@@ -42,12 +42,12 @@ module.exports = {
             const customer = await stripe.customers.retrieve(billing.stripeCustomerId)
 
             let accountDetails = {
-                stripeCustomerId: billing.stripeCustomerId,
                 balance: customer.balance,
             }
 
             if (billing.stripeCardBrand && billing.stripeCardLast4 && customer.invoice_settings.default_payment_method) {
-                accountDetails.card = `${billing.stripeCardBrand.toUpperCase()} ${billing.stripeCardLast4}`
+                accountDetails.stripeCardBrand = billing.stripeCardBrand.toUpperCase()
+                accountDetails.stripeCardLast4 = billing.stripeCardLast4
             }
 
             return accountDetails
@@ -57,7 +57,7 @@ module.exports = {
     },
     response: function(request, res) {
         let response = _.pickBy(request, function(value, key) {
-            return _.includes(['stripeCustomerId','balance','card'], key)
+            return _.includes(['balance','stripeCardBrand','stripeCardLast4'], key)
         })
         return res.status(200).send(response)
     },

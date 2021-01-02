@@ -17,7 +17,8 @@ module.exports.config = function () {
     router.post('/billing-information', Stripe.billingInformation)
     router.post('/create-setup-intent', Stripe.createSetupIntent)
     router.post('/create-payment-intent-upgrade', Stripe.createPaymentIntentUpgrade)
-    router.post('/create-payment-intent-datatransfer', Stripe.createPaymentIntentDatatransfer)
+    router.post('/create-payment-intent-datatransfer', Stripe.createPaymentIntentDataTransfer)
+    router.post('/confirm-payment-intent', Stripe.confirmPaymentIntent)
 
     router.post('/update-payment-method', Stripe.updatePaymentMethod)
     router.post('/remove-payment-method', Stripe.removePaymentMethod)
