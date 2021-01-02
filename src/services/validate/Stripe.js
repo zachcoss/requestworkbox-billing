@@ -1,18 +1,18 @@
 const 
-    createSetupIntent = require('./StripeCreateSetupIntent'),
     billingInformation = require('./StripeBillingInformation'),
-    updatePaymentMethod = require('./StripeUpdatePaymentMethod'),
-    removePaymentMethod = require('./StripeRemovePaymentMethod'),
+    createSetupIntent = require('./StripeCreateSetupIntent'),
     createPaymentIntentUpgrade = require('./StripeCreatePaymentIntentUpgrade'),
-    createPaymentIntentDataTransfer = require('./StripeCreatePaymentIntentDatatransfer');
+    createPaymentIntentDataTransfer  = require('./StripeCreatePaymentIntentDatatransfer'),
+    updatePaymentMethod = require('./StripeUpdatePaymentMethod'),
+    removePaymentMethod = require('./StripeRemovePaymentMethod');
 
 module.exports = {
     billingInformation,
-    
-    updatePaymentMethod,
-    removePaymentMethod,
 
     createSetupIntent,
     createPaymentIntentUpgrade,
     createPaymentIntentDataTransfer,
+
+    updatePaymentMethod,
+    removePaymentMethod,
 }

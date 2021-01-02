@@ -8,7 +8,8 @@ const
             return /^[a-zA-Z0-9_]*$/.test(string)
         },
     }),
-    IndexSchema = require('../tools/schema').schema;
+    IndexSchema = require('../tools/schema').schema,
+    stripe = require('../tools/stripe').Stripe;
 
 module.exports = {
     validate: function(req, res) {

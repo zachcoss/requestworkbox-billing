@@ -13,14 +13,14 @@ module.exports.config = function () {
     router.post('/list-tokens', Token.listTokens)
     router.post('/generate-token', Token.generateToken)
     router.post('/revoke-token', Token.revokeToken)
-
+    
+    router.post('/billing-information', Stripe.billingInformation)
     router.post('/create-setup-intent', Stripe.createSetupIntent)
+    router.post('/create-payment-intent-upgrade', Stripe.createPaymentIntentUpgrade)
+    router.post('/create-payment-intent-datatransfer', Stripe.createPaymentIntentDatatransfer)
+
     router.post('/update-payment-method', Stripe.updatePaymentMethod)
     router.post('/remove-payment-method', Stripe.removePaymentMethod)
-    router.post('/create-subscription', Stripe.createSubscription)
-    router.post('/cancel-subscription', Stripe.cancelSubscription)
-    router.post('/get-account-details', Stripe.billingInformation)
-    router.post('/preview-checkout-price', Stripe.previewCheckoutPrice)
 
     return router;
 }

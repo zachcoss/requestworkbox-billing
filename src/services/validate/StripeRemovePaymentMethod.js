@@ -8,18 +8,16 @@ const
             return /^[a-zA-Z0-9_]*$/.test(string)
         },
     }),
-    IndexSchema = require('../tools/schema').schema;
+    IndexSchema = require('../tools/schema').schema,
+    stripe = require('../tools/stripe').Stripe;
 
 module.exports = {
     validate: function(req, res) {
 
         if (!req.user || !req.user.sub) throw new Error('Invalid or missing token.')
-        if (!req.body.paymentMethodId) throw new Error('Missing payment method id.')
-        if (!_.isString(req.body.paymentMethodId)) throw new Error('Incorrect payment method id type.')
         
         let payload = {
             sub: req.user.sub,
-            paymentMethodId: req.body.paymentMethodId,
         }
 
         return payload
