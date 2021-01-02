@@ -41,7 +41,7 @@ module.exports = {
                 active: true,
             })
 
-            if (activeTokens >= 10) throw new Error('Rate limit error.')
+            if (activeTokens >= 5) throw new Error('Rate limit error.')
 
             let tokens = await IndexSchema.Token.find({
                 sub: setting.sub,
