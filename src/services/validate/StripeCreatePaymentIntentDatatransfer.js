@@ -129,7 +129,7 @@ module.exports = {
                     currency: 'usd',
                     payment_method_types: ['card'],
                     customer: billing.stripeCustomerId,
-                    metadata: { intentId: intent._id },
+                    metadata: { intentId: intent._id.toString() },
                 })
 
                 intent.paymentIntentId = paymentIntent.id
