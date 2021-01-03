@@ -102,6 +102,9 @@ module.exports = {
                     product: payload.product,
                     price: price,
                 })
+            } else {
+                if (intent.status === 'completed') throw new Error('Payment completed.')
+                if (intent.status !== 'started') throw new Error('Incorrect payment status.')
             }
 
             if (payload.coupon) {
@@ -112,7 +115,7 @@ module.exports = {
                     sub: billing.sub,
                     status: 'completed',
                     intentType: intentType,
-                    coupon: { $nin: ['']},
+                    coupon: coupons[0],
                 })
 
                 if (couponsRedeemed > 0) throw new Error('Coupon has already been redeemed.')
@@ -159,9 +162,15 @@ module.exports = {
             throw new Error(err.message)
         }
     },
-    response: function({ intent, client_secret }, res) {
-        let finalIntent = intent.toJSON()
-        finalIntent.client_secret = client_secret
+    response: function(payload, res) {
+        let finalIntent;
+
+        if (payload._id) {
+            finalIntent = payload.toJSON()
+        } else if (payload.client_secret) {
+            finalIntent = payload.intent.toJSON()
+            finalIntent.client_secret = payload.client_secret
+        }
 
         let response = _.pickBy(finalIntent, function(value, key) {
             return _.includes(intentKeys, key)
