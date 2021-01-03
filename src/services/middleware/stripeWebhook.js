@@ -1,30 +1,34 @@
 const
     _ = require('lodash'),
+    IndexSchema = require('../tools/schema').schema;
     stripe = require('../tools/stripe').Stripe;
     
 module.exports = {
-    invoicePaymentFailed: async function(event) {
-        console.log('Invoice payment failed ', event.id)
-    },
-    invoicePaymentActionRequired: async function(event) {
-        console.log('Invoice payment action required ', event.id)
-    },
-    customerSubscriptionCreated: async function(event) {
-        console.log('Customer subscription created ', event.id)
+    paymentIntentSucceeded: async function(event) {
+        const intentId = event.data.object.metadata.intentId
 
-        const stripeCustomerId = event.data.object.customer
-        const subscriptionPlan = event.data.object.items.data[0].plan.nickname
+        const intent = await IndexSchema.Intent.findById(intentId)
+        if (!intent || !intent._id) return console.log('Intent not found.')
+        if (!intent.projectId) return console.log('Project id not found.')
+        if (!intent.product) return console.log('Product not found.')
+        if (!_.includes(['standard','developer','professional','gb'], intent.product)) return console.log('Product type not found.')
 
-        const findPayload = { stripeCustomerId, active: true, }
-    },
-    customerSubscriptionDeleted: async function(event) {
-        console.log('Customer subscription deleted ', event.id)
+        const project = await IndexSchema.Project.findById(intent.projectId)
+        if (!project || !project._id) return console.log('Project not found.')
 
-        const stripeCustomerId = event.data.object.customer
-        const findPayload = { stripeCustomerId, active: true, }
-    },
-    customerSubscriptionUpdated: async function(event) {
-        console.log('Customer subscription updated ', event.id)
+        if (intent.intentType === 'upgrade') {
+            project.projectType = intent.product
+            await project.save()
+        } else if (intent.intentType === 'datatransfer') {
+            project.usageTotal = project.usageTotal + 1000
+            project.usageRemaining = project.usageTotal - project.usage
+            await project.save()
+        }
+
+        intent.status = 'completed'
+        await intent.save()
+
+        console.log('Intent completed')
     },
     processWebhook: async function (req, res, next) {
         try {
@@ -42,28 +46,8 @@ module.exports = {
                 // https://stripe.com/docs/billing/webhooks
                 // Remove comment to see the various objects sent for this sample
                 switch (event.type) {
-                    case 'invoice.payment_failed':
-                        // If the payment fails or the customer does not have a valid payment method,
-                        //  an invoice.payment_failed event is sent, the subscription becomes past_due.
-                        // Use this webhook to notify your user that their payment has
-                        // failed and to retrieve new card details.
-                        await module.exports.invoicePaymentFailed(event)
-                        break;
-                    case 'invoice.payment_action_required':
-                        // If the payment requires action
-                        await module.exports.invoicePaymentActionRequired(event)
-                        break;
-                    case 'customer.subscription.created':
-                        // when customer subscription is created
-                        await module.exports.customerSubscriptionCreated(event)
-                        break;
-                    case 'customer.subscription.deleted':
-                        // when customer subscription is delete
-                        await module.exports.customerSubscriptionDeleted(event)
-                        break;
-                    case 'customer.subscription.updated':
-                        // when customer changes plans
-                        await module.exports.customerSubscriptionUpdated(event)
+                    case 'payment_intent.succeeded':
+                        await module.exports.paymentIntentSucceeded(event)
                         break;
                     default:
                     // Unexpected event type

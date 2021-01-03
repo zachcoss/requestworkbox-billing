@@ -2,6 +2,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const express = require('express')
+const helmet = require('helmet')
 const mongoose = require('mongoose')
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -24,7 +25,8 @@ app.set('x-powered-by', false)
 app.set('json escape', true)
 app.set('trust proxy', true)
 
-app.use(logger('common'));
+app.use(helmet())
+app.use(logger('common'))
 app.use(compression())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

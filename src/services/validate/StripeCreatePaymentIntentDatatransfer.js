@@ -10,7 +10,8 @@ const
     }),
     IndexSchema = require('../tools/schema').schema,
     stripe = require('../tools/stripe').Stripe,
-    intentKeys = ['_id','active','status','projectId','intentType','product','price','paymentIntentId','coupone','createdAt','updatedAt'],
+    // includes client_secret
+    intentKeys = ['_id','active','status','projectId','intentType','product','price','paymentIntentId','coupon','client_secret','createdAt','updatedAt'],
     productKeys = ['gb'],
     coupons = ['RQSTWRKBX'],
     pricing = {
@@ -129,8 +130,10 @@ module.exports = {
                 return intent
             }
 
+            let paymentIntent;
+
             if (!intent.paymentIntentId) {
-                const paymentIntent = await stripe.paymentIntents.create({
+                paymentIntent = await stripe.paymentIntents.create({
                     amount: price,
                     currency: 'usd',
                     payment_method_types: ['card'],
@@ -139,17 +142,24 @@ module.exports = {
                 })
 
                 intent.paymentIntentId = paymentIntent.id
+            } else {
+                paymentIntent = await stripe.paymentIntents.retrieve(intent.paymentIntentId)
             }
 
             await intent.save()
 
-            return intent.toJSON()
+            const client_secret = paymentIntent.client_secret
+
+            return { intent, client_secret }
         } catch(err) {
             throw new Error(err.message)
         }
     },
-    response: function(request, res) {
-        let response = _.pickBy(request, function(value, key) {
+    response: function({ intent, client_secret }, res) {
+        let finalIntent = intent.toJSON()
+        finalIntent.client_secret = client_secret
+
+        let response = _.pickBy(finalIntent, function(value, key) {
             return _.includes(intentKeys, key)
         })
         return res.status(200).send(response)

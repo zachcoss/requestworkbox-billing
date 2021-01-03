@@ -62,9 +62,10 @@ module.exports = {
     request: async function({ intent, project }) {
         try {
 
-            const billing = IndexSchema.Billing.findOne({
+            const billing = await IndexSchema.Billing.findOne({
                 sub: intent.sub,
             })
+
             if (!billing || !billing._id) throw new Error('Billing not found.')
             if (!billing.stripeCustomerId) throw new Error('Billing information not found.')
 

@@ -59,21 +59,6 @@ module.exports = {
             return res.status(500).send('ERROR')
         }
     },
-    validateOrigin: async function (req, res, next) {
-        try {
-            if (_.includes(req.path, '/stripe-webhook')) return next()
-
-            const origin = `${req.secure ? 'https' : 'http'}://${req.hostname}`
-            console.log('incoming origin', origin)
-            const allowOrigin = process.env.NODE_ENV === 'production' ? 'https://dashboard.requestworkbox.com' : 'http://localhost'
-            
-            if (origin !== allowOrigin) throw new Error('Incorrect origin type.')
-            else return next()
-        } catch (err) {
-            console.log('Validate origin error', err)
-            return res.status(401).send('Error validating origin.')
-        }
-    },
     interceptor: async function (req, res, next) {
         try {
             const paths = ['/create-customer','/update-customer','/stripe-webhook']
